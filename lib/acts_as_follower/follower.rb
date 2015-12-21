@@ -17,12 +17,12 @@ module ActsAsFollower #:nodoc:
 
       # Returns true if this instance is following the object passed as an argument.
       def following?(followable)
-        0 < Follow.unblocked.for_follower(self).for_followable(followable).count
+        0 < get_unblocked_followers.for_followable(followable).count
       end
 
       # Returns the number of objects this instance is following.
       def follow_count
-        Follow.unblocked.for_follower(self).count
+        get_unblocked_followers.count
       end
 
       # Creates a new follow record for this instance to follow the passed object.
@@ -42,7 +42,7 @@ module ActsAsFollower #:nodoc:
 
       # returns the follows records to the current instance
       def follows_scoped
-        self.follows.unblocked.includes(:followable)
+        get_unblocked_follows.includes(:followable)
       end
 
       # Returns the follow records related to this instance by type.
@@ -80,7 +80,7 @@ module ActsAsFollower #:nodoc:
       end
 
       def following_by_type_count(followable_type)
-        follows.unblocked.for_followable_type(followable_type).count
+        get_unblocked_follows.for_followable_type(followable_type).count
       end
 
       # Allows magic names on following_by_type
@@ -103,7 +103,17 @@ module ActsAsFollower #:nodoc:
 
       # Returns a follow record for the current instance and followable object.
       def get_follow(followable)
-        self.follows.unblocked.for_followable(followable).first
+        get_unblocked_follows.for_followable(followable).first
+      end
+
+      private
+
+      def get_unblocked_followers
+        Follow.unblocked.for_follower(self)
+      end
+
+      def get_unblocked_follows
+        self.follows.unblocked
       end
 
     end
